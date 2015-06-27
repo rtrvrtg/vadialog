@@ -149,10 +149,10 @@ window.visionaustralia.addDialog = function (linkId, dialogId, events){
 
             dialog.attr('data-current-vadialog', dialogId);
             
-            var closeButton = $('<button class="vaCloseButton">' +
-            	// '&#xe000;' +
+            var closeButton = $('<button class="vaCloseButton" tabindex="999999">' +
             	'<span class="vaOffscreen">Close dialog</span></button>');
 			var startCentinel = $('<span class="vaOffscreen" tabindex="0"></span>');
+			var closeProxy = $('<span class="vaCloseProxy vaOffscreen" tabindex="0"></span>');
 			startDialog = $('<a class="vaOffscreen" tabindex="-1">Dialog start</a>');
 			var endDialog = $('<span class="vaOffscreen" tabindex="-1">Dialog end</span>');
 			var endCentinel = $('<span class="vaOffscreen" tabindex="0"></span>');
@@ -163,6 +163,18 @@ window.visionaustralia.addDialog = function (linkId, dialogId, events){
 			
 			endCentinel.focus(function() {
 				endDialog.focus();
+			});
+
+			endDialog.blur(function() {
+				closeButton.focus();
+			});
+
+			closeProxy.focus(function(){
+				closeButton.focus();
+			});
+
+			closeButton.blur(function(){
+				startCentinel.focus();
 			});
 
 			dialog.append(startCentinel);
@@ -185,6 +197,7 @@ window.visionaustralia.addDialog = function (linkId, dialogId, events){
             
             dialog.append(endDialog);
 			dialog.append(endCentinel);
+			dialog.append(closeProxy);
 
 			if (fBeforeOpen && typeof fBeforeOpen == "function") {
 				fBeforeOpen.call(dialog);
@@ -305,6 +318,5 @@ visionaustralia.escapeToClose = function (){
 		}
 	});
 }
-
 
 })(jQuery);

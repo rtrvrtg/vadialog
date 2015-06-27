@@ -158,4 +158,10 @@ $(document).ready(function(){
       }
     );
   });
+
+  // Debug
+  // $('*').focus(function(){
+  //   console.log('changed focus');
+  //   console.log(this.outerHTML);
+  // });
 });

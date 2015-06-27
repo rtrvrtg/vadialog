@@ -8,6 +8,12 @@
 	<link rel="stylesheet" href="vadialog.css">
 	<script type="text/javascript" src="vadialog.js"></script>
 	<script type="text/javascript" src="vadialog-unobtrusive.js"></script>
+
+	<style type="text/css">
+		*:focus {
+			outline: 3px solid #f00;
+		}
+	</style>
 </head>
 <body>
 	<h1>VA Dialog Demo</h1>
@@ -47,12 +53,23 @@
 		</a>
 	</p>
 
+	<p>
+		Note that servers of remote URLs that you fetch must support
+		<a href="http://enable-cors.org/">Cross-Origin Resource Sharing (CORS)</a>.
+	</p>
+
 	<h2>Open iframe within modal</h2>
 
 	<p>
 		<a href="http://enable-cors.org/" data-vadialog-iframe>
 			open iframe
 		</a>
+	</p>
+
+	<p>
+		Note that servers of remote URLs that you embed in an iframe must either a
+		<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/X-Frame-Options">X-Frame-Options</a>
+		header set, or have it set to <code>ALLOW FROM your-uri</code>.
 	</p>
 
 </body>
