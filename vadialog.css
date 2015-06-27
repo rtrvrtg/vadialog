@@ -15,13 +15,15 @@ body.hasvamodal {
 }
 
 .vashadow {
-	background-color: black;
-	opacity: 0.6;
+	background-color: rgba(0,0,0,0.6);
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height:100%;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
 
 .vadialog {
@@ -33,20 +35,30 @@ body.hasvamodal {
 	top:50%;
 	padding:40px;
 	z-index: 9999;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
 
 .vaCloseButton {
-	/*float: right;*/
+	position: absolute;
 	border-radius: 10px;
 	font-family: "wheel";
 	color: grey;
 	font-size: 20px;
 	border: none;
-	/*margin-right:-40px;
-	margin-top:-35px;*/
 	background: white;
+	width: 40px;
+	height: 40px;
+	margin: 0;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
 
+.vaCloseButton:before {
+	content: "\e000";
+}
 
 .vaOffscreen{
 	position: absolute;
