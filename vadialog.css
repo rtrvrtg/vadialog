@@ -1,3 +1,15 @@
+/**
+ * VA Dialog
+ * v0.1.1.0
+ */
+
+@font-face {
+    font-family: "wheel";
+    src: url('wheel.eot');
+    src: url('wheel.eot?#iefix') format('embedded-opentype'),
+         url('wheel.ttf') format('truetype');
+}
+
 body.hasvamodal {
   overflow: hidden !important;
 }
@@ -24,28 +36,21 @@ body.hasvamodal {
 }
 
 .vaCloseButton {
-	float:right;
+	/*float: right;*/
 	border-radius: 10px;
-	font-family:"wheel";
-	color:grey;
-	font-size:20px;
-	border:none;
-	margin-right:-40px;
-	margin-top:-35px;
+	font-family: "wheel";
+	color: grey;
+	font-size: 20px;
+	border: none;
+	/*margin-right:-40px;
+	margin-top:-35px;*/
 	background: white;
 }
 
 
 .vaOffscreen{
-	position:absolute;
-	left:-9999px;
-}
-
-@font-face {
-    font-family:"wheel";
-    src: url('wheel.eot');
-    src: url('wheel.eot?#iefix') format('embedded-opentype'),
-         url('wheel.ttf') format('truetype');
+	position: absolute;
+	left: -9999px;
 }
 
 .vadialog iframe {

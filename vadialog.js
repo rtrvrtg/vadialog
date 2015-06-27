@@ -1,3 +1,8 @@
+/**
+ * VA Dialog
+ * v0.1.1.0
+ */
+
 (function($){
 
 //www.visionaustralia.org/digital-access-dialog

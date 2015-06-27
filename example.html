@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>VA Dialog Demo</title>
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+	<link rel="stylesheet" href="vadialog.css">
+	<script type="text/javascript" src="vadialog.js"></script>
+	<script type="text/javascript" src="vadialog-unobtrusive.js"></script>
+</head>
+<body>
+	<h1>VA Dialog Demo</h1>
+
+	<h2>Hidden dialog box open/close</h2>
+
+	<p>Close action on buttons within modal popup</p>
+
+	<p>
+		<a href="#" data-vadialog-open="example-1">
+			open hidden dialog
+		</a>
+	</p>
+
+	<div id="example-1" style="display: none;">
+
+		<h1>Old Viking Saying</h1>
+
+		<p>
+			Did they really use to say "Holy goat, where's my boat"?
+		</p>
+
+ 		<button data-vadialog-close="example-1">
+ 			Absolutely
+ 		</button>
+
+ 		<button data-vadialog-close="example-1">
+ 			Not sure
+ 		</button>
+	</div>
+
+	<h2>Open URL within modal</h2>
+
+	<p>
+		<a href="http://enable-cors.org/" data-vadialog-url=".container">
+			open URL
+		</a>
+	</p>
+
+	<h2>Open iframe within modal</h2>
+
+	<p>
+		<a href="http://enable-cors.org/" data-vadialog-iframe>
+			open iframe
+		</a>
+	</p>
+
+</body>
+</html>
