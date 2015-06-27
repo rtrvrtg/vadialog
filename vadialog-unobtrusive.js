@@ -1,6 +1,6 @@
 /**
  * VA Dialog
- * v0.1.1.0
+ * v0.1.1
  */
 
 $(document).ready(function(){
@@ -158,10 +158,4 @@ $(document).ready(function(){
       }
     );
   });
-
-  // Debug
-  // $('*').focus(function(){
-  //   console.log('changed focus');
-  //   console.log(this.outerHTML);
-  // });
 });
