@@ -181,7 +181,7 @@ window.visionaustralia.addDialog = function (linkId, dialogId, events){
             
             dialog.append(contentToShow);
             
-            contentToShow.show();
+            contentToShow.show().attr("aria-hidden", "false");
             
             dialog.append(endDialog);
 			dialog.append(endCentinel);

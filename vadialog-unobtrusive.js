@@ -150,6 +150,7 @@ $(document).ready(function(){
             window.innerHeight - (2 * padTop)
           );
           visionaustralia.resizeDialog(this);
+          $('.vashadow').addClass('vashadow-iframe');
         },
         forCloseButton: function(){
           this.find('iframe').remove();

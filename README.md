@@ -16,6 +16,14 @@ This code is licensed under the [Creative Commons Attribution-NonCommercial-Shar
 
 * jQuery
 
+## Features
+
+* Press _Escape_ to close open modal
+* Unobtrusive Javascript implementation
+* Can open remote HTML
+  * as embed into current page
+  * as iframe
+
 ## Installation & Usage
 
 Add the following to the `<head>` of your page:
@@ -75,3 +83,4 @@ Initial commit with modifications and unobtrusive JS extension
 * Add template support
 * Document CSS to allow for easy modification
 * Make CSS look nicer
+* Add translation support
