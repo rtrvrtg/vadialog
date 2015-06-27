@@ -70,6 +70,10 @@ Use the following markup to dynamically load a page and use a CSS selector to se
 
 ## Changelog
 
+### v0.1.2
+
+Fixed URL loader tab order bug
+
 ### v0.1.1
 
 Fixed residual styling and keyboard trap bugs

@@ -1,6 +1,6 @@
 /**
  * VA Dialog
- * v0.1.1
+ * v0.1.2
  */
 
 $(document).ready(function(){
@@ -66,7 +66,7 @@ $(document).ready(function(){
             'html': '<div class="remote-content-inner"><i class="fa fa-spinner"></i></div>',
             'aria-live': "polite"
           });
-          container.append(loadContainer);
+          container.find('[data-vadialog-url-trigger]').append(loadContainer);
           container.find('.remote-content')
           .load($(trigger).attr('href') + " body", function(response, status, xhr){
             if (status == "error") {
