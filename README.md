@@ -18,7 +18,7 @@ This code is licensed under the [Creative Commons Attribution-NonCommercial-Shar
 
 ## Installation & Usage
 
-Add the following to the {{{<head>}}} of your page:
+Add the following to the `<head>` of your page:
 
 ```html
 <link rel="stylesheet" href="vadialog.css">
@@ -28,7 +28,7 @@ Add the following to the {{{<head>}}} of your page:
 
 ### Linking to a hidden element
 
-In the {{{<body>}}} of your page, add the following to link to a hidden {{{<div>}}} with the attribute {{{id="foo"}}}:
+In the `<body>` of your page, add the following to link to a hidden `<div>` with the attribute `id="foo"`:
 
 ```html
 <a href="#" data-vadialog-open="foo">link</a>
@@ -36,7 +36,7 @@ In the {{{<body>}}} of your page, add the following to link to a hidden {{{<div>
 
 ### Closing an open modal
 
-All modals come with a close button, but you can use the following markup within a {{{<div>}}} with the attribute {{{id="foo"}}} to close it when clicked:
+All modals come with a close button, but you can use the following markup within a `<div>` with the attribute `id="foo"` to close it when clicked:
 
 ```html
 <a href="#" data-vadialog-close="foo">link</a>
@@ -44,7 +44,7 @@ All modals come with a close button, but you can use the following markup within
 
 ### Displaying content at a URL
 
-Use the following markup to dynamically load a page and use a CSS selector to select a portion of it when clicked. The following assumes that there is an element with the attribute {{{id="foo"}}} immediately under the {{{<body>}}} at the destination page:
+Use the following markup to dynamically load a page and use a CSS selector to select a portion of it when clicked. The following assumes that there is an element with the attribute `id="foo"` immediately under the `<body>` at the destination page:
 
 ```html
 <a href="http://google.com" data-vadialog-url="#content .foo">link</a>
@@ -54,7 +54,7 @@ Use the following markup to dynamically load a page and use a CSS selector to se
 
 **Note:** iframes are not particularly accessible, so we suggest using this method with caution.
 
-Use the following markup to dynamically load a page and use a CSS selector to select a portion of it when clicked. The following assumes that there is an element with the attribute {{{id="foo"}}} immediately under the {{{<body>}}} at the destination page:
+Use the following markup to dynamically load a page and use a CSS selector to select a portion of it when clicked. The following assumes that there is an element with the attribute `id="foo"` immediately under the `<body>` at the destination page:
 
 ```html
 <a href="http://google.com" data-vadialog-iframe>link</a>
