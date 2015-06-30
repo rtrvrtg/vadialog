@@ -1,6 +1,6 @@
 /**
  * VA Dialog
- * v0.1.2
+ * v0.1.3
  */
 
 (function($){
@@ -200,13 +200,13 @@ window.visionaustralia.addDialog = function (linkId, dialogId, events){
 			dialog.append(closeProxy);
 
 			if (fBeforeOpen && typeof fBeforeOpen == "function") {
-				fBeforeOpen.call(dialog);
+				fBeforeOpen.call(dialog, link);
 			}
 			
 			//add event handler to close button
 			closeButton.click(function(){
 				if (fForCloseButton && typeof fForCloseButton == "function") {
-					fForCloseButton.call(dialog);
+					fForCloseButton.call(dialog, link);
 				}
 				close();
 			});
@@ -260,7 +260,7 @@ window.visionaustralia.addDialog = function (linkId, dialogId, events){
 			startDialog.focus();
 
 			if (fAfterOpen && typeof fAfterOpen == "function") {
-				fAfterOpen.call(dialog);
+				fAfterOpen.call(dialog, link);
 			}
 
 			ev.preventDefault();

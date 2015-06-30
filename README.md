@@ -31,7 +31,13 @@ Add the following to the `<head>` of your page:
 ```html
 <link rel="stylesheet" href="vadialog.css">
 <script type="text/javascript" src="vadialog.js"></script>
-<script type="text/javascript" src="vadialog-unobtrusive.js"></script>
+<script type="text/javascript" src="vadialog.jquery.js"></script>
+```
+
+If you need to invoke VA Dialog manually, such as after an AJAX load, call the following:
+
+```javascript
+$(container).vadialog();
 ```
 
 ### Linking to a hidden element
@@ -69,6 +75,10 @@ Use the following markup to dynamically load a page and use a CSS selector to se
 ```
 
 ## Changelog
+
+### v0.1.3
+
+Ported unobtrusive addition to jQuery plugin in preparation for merge
 
 ### v0.1.2
 
