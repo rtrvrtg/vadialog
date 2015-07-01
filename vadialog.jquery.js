@@ -101,11 +101,11 @@
 		resize: function(dialog, widthHint, heightHint){
 			// Added by GR
 			// Reset width and height
-			dialog.width('');
-			dialog.height('');
+			dialog.width('').height('');
 
 			// Heavily modified by GR
 			// Centers window with more respect to the size of the window
+			// @TODO: handle actual pixel size better. Jeez.
 			var padLeft  = parseInt(dialog.css("padding-left"), 10);
 			var padTop   = parseInt(dialog.css("padding-top"), 10);
 			var position = "fixed";
