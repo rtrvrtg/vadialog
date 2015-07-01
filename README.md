@@ -15,22 +15,30 @@ Enhancements and rework by [Geoffrey Roberts](mailto:g.roberts@blackicemedia.com
 ## Requirements
 
 * jQuery
+* [Handlebars](http://handlebarsjs.com/)
 
 ## Features
 
-* Press _Escape_ to close open modal
-* Unobtrusive Javascript implementation
+* Press _Escape_ to close open modal dialog
+* One nice self-contained unobtrusive jQuery plugin
 * Can open remote HTML
   * as embed into current page
   * as iframe
+* Supports customisable templates for different bits of the modal dialog
 
 ## Installation & Usage
 
-Add the following to the `<head>` of your page:
+Add jQuery and Handlebars. If you don't feel like using your own, use them from the CDN:
+
+```html
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js"></script>
+```
+
+Add the following to the `<head>` of your page after that:
 
 ```html
 <link rel="stylesheet" href="vadialog.css">
-<script type="text/javascript" src="vadialog.js"></script>
 <script type="text/javascript" src="vadialog.jquery.js"></script>
 ```
 
@@ -74,7 +82,37 @@ Use the following markup to dynamically load a page and use a CSS selector to se
 <a href="http://google.com" data-vadialog-iframe>link</a>
 ```
 
+### Setting custom templates
+
+You can define custom [Handlebars](http://handlebarsjs.com/) templates for various bits of the dialog like so. In this example, we're redefining the main dialog template:
+
+```html
+<script id="custom-dialog-tpl" type="text/x-handlebars-template">
+	<div data-vadialog-elem-dialog class="vadialog" data-current-vadialog="{{dialogID}}" style="background: #006; color: #fff; box-shadow: 0 0 10px black;">
+		{{{startSentinel}}}
+		{{{startDialog}}}
+		<div data-vadialog-elem-content></div>
+		{{{endDialog}}}
+		{{{endSentinel}}}
+		{{{closeProxy}}}
+	</div>
+</script>
+```
+
+You can then reference it in the opener link like so:
+
+```html
+<a href="#" data-vadialog-open="example-1" data-vadialog-tpl-dialog="custom-dialog-tpl">
+	open a dialog
+</a>
+```
+
 ## Changelog
+
+### v0.2
+
+* Uses Handlebars templates to generate modal dialog HTML
+* Allows you to specify your own templates with data attributes on the trigger link
 
 ### v0.1.3
 
@@ -94,11 +132,8 @@ Initial commit with modifications and unobtrusive JS extension
 
 ## @TODO
 
-* Integrate unobtrusive addition with original library
-* Turn library into a proper plugin
 * Add support for additional parameters
 * Improve element selection in data-vadialog-url
-* Add template support
 * Document CSS to allow for easy modification
 * Make CSS look nicer
 * Add translation support
