@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>VA Dialog Demo</title>
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js"></script>
+
+	<link rel="stylesheet" href="vadialog.css">
+	<script type="text/javascript" src="vadialog.jquery.js"></script>
+
+	<style type="text/css">
+		*:focus {
+			outline: 3px solid #f00;
+		}
+	</style>
+</head>
+<body>
+	<h1>VA Dialog Demo</h1>
+
+	<h2>Hidden dialog box open/close</h2>
+
+	<p>Close action on buttons within modal popup</p>
+
+	<p>
+		<a href="#" data-vadialog-open="example-1" data-vadialog-tpl-dialog="custom-dialog-tpl">
+			open hidden dialog
+		</a>
+	</p>
+
+	<div id="example-1" style="display: none;" aria-hidden="true">
+
+		<h1>Old Viking Saying</h1>
+
+		<p>
+			Did they really use to say "Holy goat, where's my boat"?
+		</p>
+
+		<button data-vadialog-close="example-1">
+			Absolutely
+		</button>
+
+		<button data-vadialog-close="example-1">
+			Not sure
+		</button>
+	</div>
+
+	<h2>Open URL within modal</h2>
+
+	<p>
+		<a href="http://enable-cors.org/index.html" data-vadialog-url=".container" data-vadialog-tpl-loading="custom-loading-tpl" data-vadialog-tpl-error="custom-error-tpl">
+			open URL
+		</a>
+	</p>
+
+	<p>
+		Note that servers of remote URLs that you fetch must support
+		<a href="http://enable-cors.org/">Cross-Origin Resource Sharing (CORS)</a>.
+	</p>
+
+	<h2>Open iframe within modal</h2>
+
+	<p>
+		<a href="http://enable-cors.org/index.html" data-vadialog-iframe data-vadialog-tpl-loading="custom-loading-tpl" data-vadialog-tpl-error="custom-error-tpl">
+			open iframe
+		</a>
+	</p>
+
+	<p>
+		Note that servers of remote URLs that you embed in an iframe must either a
+		<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/X-Frame-Options">X-Frame-Options</a>
+		header set, or have it set to <code>ALLOW FROM your-uri</code>.
+	</p>
+
+	<script id="custom-dialog-tpl" type="text/x-handlebars-template">
+		<div data-vadialog-elem-dialog class="vadialog" data-current-vadialog="{{dialogID}}" style="background: #006; color: #fff; box-shadow: 0 0 10px black;">
+			{{{startSentinel}}}
+			{{{startDialog}}}
+			<div data-vadialog-elem-content></div>
+			{{{endDialog}}}
+			{{{endSentinel}}}
+			{{{closeProxy}}}
+		</div>
+	</script>
+	<script id="custom-loading-tpl" type="text/x-handlebars-template">
+		<div data-vadialog-elem-remoteinner class="remote-content-inner" style="min-width: 200px; background: #f9f;"><h1>WE ARE LOADING NOW!</h1></div>
+	</script>
+	<script id="custom-error-tpl" type="text/x-handlebars-template">
+		<div data-vadialog-elem-remoteinner class="remote-content-inner" style="min-width: 200px; background: #600; color: white;"><h1 role="alert">WE COULDN'T LOAD IT!</h1></div>
+	</script>
+
+</body>
+</html>

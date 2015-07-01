@@ -1,6 +1,6 @@
 /**
  * VA Dialog
- * v0.1.3
+ * v0.2
  */
 
 (function( $ ) {
@@ -10,26 +10,63 @@
 	// Namespace was originally called visionaustralia
 	var VADialog = {};
 
+	// Set of loaded dialogs
+	VADialog.dialogs = {};
+
+	VADialog.DialogHandler = {
+		add: function(dialogId, parentElem, closeFn){
+			VADialog.dialogs[dialogId] = {
+				parentElem:  parentElem,
+				closeDialog: closeFn
+			};
+		},
+		remove: function(dialogId){
+			
+		}
+	}
+
 	// Base structure for templating loader
 	VADialog.Templates = {
-		loadContainer: function(html){
-			return $('<div />', {
-				'class': "remote-content remote-content-loading",
-				'html': html,
-				'aria-live': "polite"
-			});
+		// Default HTML
+		_defaults: {
+			remoteload:  '<div data-vadialog-elem-remoteload class="remote-content remote-content-loading" aria-live="polite">{{{loaderContent}}}</div>',
+
+			loading:     '<div data-vadialog-elem-remoteinner class="remote-content-inner">Loading...</div>',
+			error:       '<div data-vadialog-elem-remoteinner class="remote-content-inner"><p role="alert">Could not load page.</p></div>',
+
+			shadow:      '<div data-vadialog-elem-shadow class="vashadow">' +
+				'{{{closeButton}}}' +
+				'{{{dialog}}}' +
+				'</div>',
+			dialog:      '<div data-vadialog-elem-dialog class="vadialog" data-current-vadialog="{{dialogID}}">' +
+				'{{{startSentinel}}}' +
+				'{{{startDialog}}}' +
+				'<div data-vadialog-elem-content></div>' +
+				'{{{endDialog}}}' +
+				'{{{endSentinel}}}' +
+				'{{{closeProxy}}}' +
+				'</div>',
+			closebutton: '<button data-vadialog-elem-closebutton class="vaCloseButton" tabindex="999999">' +
+				'<span class="vaOffscreen">Close dialog</span>' +
+				'</button>',
+
+			sentinel:    '<span data-vadialog-elem-sentinel="{{location}}" class="vaOffscreen" tabindex="0"></span>',
+			dialogstart: '<a data-vadialog-elem-dialogmark="start" class="vaOffscreen" tabindex="-1">Dialog start</a>',
+			dialogend:   '<span data-vadialog-elem-dialogmark="end" class="vaOffscreen" tabindex="-1">Dialog end</span>',
+			closeproxy:  '<span data-vadialog-elem-closeproxy class="vaCloseProxy vaOffscreen" tabindex="0"></span>',
 		},
-		loadingTpl: '<div class="remote-content-inner">Loading...</div>',
-		errorTpl: '<div class="remote-content-inner"><p role="alert">Could not load page.</p></div>',
 
-		shadowTpl: '<div class="vashadow"></div>',
-		dialogTpl: '<div class="vadialog"></div>',
-		closeButtonTpl: '<button class="vaCloseButton" tabindex="999999"><span class="vaOffscreen">Close dialog</span></button>',
-
-		sentinelTpl: '<span class="vaOffscreen" tabindex="0"></span>',
-		dialogStartTpl: '<a class="vaOffscreen" tabindex="-1">Dialog start</a>',
-		dialogEndTpl:   '<span class="vaOffscreen" tabindex="-1">Dialog end</span>',
-		closeProxyTpl:  '<span class="vaCloseProxy vaOffscreen" tabindex="0"></span>'
+		// Get a template if there is one, picking one from HTML if we can
+		get: function(templateName, dataSource){
+			var tpl = VADialog.Templates._defaults[templateName];
+			if (!!dataSource && !!dataSource.getAttribute) {
+				var attr = dataSource.getAttribute('data-vadialog-tpl-' + templateName);
+				if (!!attr) {
+					tpl = $('#' + attr).html();
+				}
+			}
+			return tpl;
+		}
 	};
 	
 	// Generates a random ID string that looks like a GUID
@@ -42,81 +79,11 @@
 		return prefix + "-" + (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
 	};
 
-	// Resize dialog box to try and fit content into page
-	VADialog.resizeDialog = function(dialog, widthHint, heightHint){
-		// Added by GR
-		// Reset width and height
-		dialog.width('');
-		dialog.height('');
-
-		// Heavily modified by GR
-		// Centers window with more respect to the size of the window
-		var padLeft  = parseInt(dialog.css("padding-left"), 10);
-		var padTop   = parseInt(dialog.css("padding-top"), 10);
-		var position = "fixed";
-
-		var closeTop = "0", closeRight = "0";
-
-		var width    = dialog.innerWidth();
-		if (dialog.find('.remote-content').length) {
-			width = dialog.find('.remote-content').innerWidth();
-			width = dialog.find('.remote-content').children().innerWidth();
-		}
-		if (!!widthHint && !isNaN(widthHint)) width = widthHint;
-
-		closeRight = (window.innerWidth - width) / 2;
-
-		var height   = dialog.innerHeight();
-		if (!!heightHint && !isNaN(heightHint)) height = heightHint;
-
-		closeTop = (window.innerHeight - height) / 2;
-
-		var marginLeft = (- width / 2 - padLeft);
-		var marginTop = (- height / 2 - padTop);
-
-		if (dialog.css('box-sizing') == "border-box") {
-			width  += (2 * padLeft);
-
-			closeRight -= padLeft;
-			closeTop -= padTop;
-		}
-
-		// Lock to full width when content exceeds screen width, or if screen is small
-		if (width > window.innerWidth || window.innerWidth < 480) {
-			padLeft = 0;
-			width = window.innerWidth;
-			marginLeft = (window.innerWidth / -2) - padLeft;
-			closeRight = "0";
-		}
-		// Lock to full height when content exceeds screen height, or if screen is small
-		if (height > window.innerHeight || window.innerHeight < 480) {
-			marginTop = (window.innerHeight / -2) + padTop;
-			position = "relative";
-			closeTop = "0";
-		}
-
-		var newCSS = {
-			marginLeft: marginLeft + "px",
-			marginTop: marginTop + "px",
-			width: width + "px",
-			position: position
-		};
-		dialog.css(newCSS);
-
-		if (closeRight < 0) closeRight = 0;
-		if (closeTop < 0) closeTop = 0;
-
-		dialog.siblings('.vaCloseButton').css({
-			top: closeTop + "px",
-			right: closeRight + "px"
-		});
-	};
-
 	// Handlers for window
 	VADialog.Window = {
 		resize: function(dialog, enable){
 			var resizeBehaviour = function(){
-				VADialog.resizeDialog(dialog);
+				VADialog.Dialog.resize(dialog);
 			};
 
 			if (enable) {
@@ -130,7 +97,135 @@
 
 	// Special dialog handler
 	VADialog.Dialog = {
+		// Resize dialog box to try and fit content into page
+		resize: function(dialog, widthHint, heightHint){
+			// Added by GR
+			// Reset width and height
+			dialog.width('');
+			dialog.height('');
 
+			// Heavily modified by GR
+			// Centers window with more respect to the size of the window
+			var padLeft  = parseInt(dialog.css("padding-left"), 10);
+			var padTop   = parseInt(dialog.css("padding-top"), 10);
+			var position = "fixed";
+
+			var closeTop = "0", closeRight = "0";
+
+			var width    = dialog.innerWidth();
+			if (dialog.find('.remote-content').length) {
+				width = dialog.find('.remote-content').innerWidth();
+				width = dialog.find('.remote-content').children().innerWidth();
+			}
+			if (!!widthHint && !isNaN(widthHint)) width = widthHint;
+
+			closeRight = (window.innerWidth - width) / 2;
+
+			var height   = dialog.innerHeight();
+			if (!!heightHint && !isNaN(heightHint)) height = heightHint;
+
+			closeTop = (window.innerHeight - height) / 2;
+
+			var marginLeft = (- width / 2 - padLeft);
+			var marginTop = (- height / 2 - padTop);
+
+			if (dialog.css('box-sizing') == "border-box") {
+				width  += (2 * padLeft);
+
+				closeRight -= padLeft;
+				closeTop -= padTop;
+			}
+
+			// Lock to full width when content exceeds screen width, or if screen is small
+			if (width > window.innerWidth || window.innerWidth < 480) {
+				padLeft = 0;
+				width = window.innerWidth;
+				marginLeft = (window.innerWidth / -2) - padLeft;
+				closeRight = "0";
+			}
+			// Lock to full height when content exceeds screen height, or if screen is small
+			if (height > window.innerHeight || window.innerHeight < 480) {
+				marginTop = (window.innerHeight / -2) + padTop;
+				position = "relative";
+				closeTop = "0";
+			}
+
+			var newCSS = {
+				marginLeft: marginLeft + "px",
+				marginTop: marginTop + "px",
+				width: width + "px",
+				position: position
+			};
+			dialog.css(newCSS);
+
+			if (closeRight < 0) closeRight = 0;
+			if (closeTop < 0) closeTop = 0;
+
+			dialog.siblings('.vaCloseButton').css({
+				top: closeTop + "px",
+				right: closeRight + "px"
+			});
+		},
+		// Render 
+		renderHTML: function(params, paramSource){
+			if (!params.content) params.content = "";
+
+			var sentinelTpl = VADialog.Templates.get('sentinel', paramSource),
+			startDialogTpl  = VADialog.Templates.get('dialogstart', paramSource),
+			endDialogTpl    = VADialog.Templates.get('dialogend', paramSource),
+			closeProxyTpl   = VADialog.Templates.get('closeproxy', paramSource),
+			shadowTpl       = VADialog.Templates.get('shadow', paramSource),
+			closeButtonTpl  = VADialog.Templates.get('closebutton', paramSource),
+			dialogTpl       = VADialog.Templates.get('dialog', paramSource);
+
+			// Generate template HTML
+			var dialogPrefs = {
+				dialogID:      params.dialogId,
+				startSentinel: Handlebars.compile(sentinelTpl)({
+					location: "start"
+				}),
+				startDialog:   Handlebars.compile(startDialogTpl)({
+					location: "start"
+				}),
+				endDialog:     Handlebars.compile(endDialogTpl)({
+					location: "end"
+				}),
+				endSentinel:   Handlebars.compile(sentinelTpl)({
+					location: "end"
+				}),
+				closeProxy:    Handlebars.compile(closeProxyTpl)()
+			},
+			shadowHTML = Handlebars.compile(shadowTpl)({
+				closeButton:   Handlebars.compile(closeButtonTpl)(),
+				dialog:        Handlebars.compile(dialogTpl)(dialogPrefs),
+			}),
+			wrappedDialog = $(shadowHTML);
+
+			wrappedDialog.find('[data-vadialog-elem-content]').replaceWith(params.content);
+			return wrappedDialog;
+		},
+		// Add event handlers for focusing on elements
+		addEventHandlers: function(wrappedDialog, closeButton){
+			wrappedDialog.find('[data-vadialog-elem-sentinel="start"]').focus(function() {
+				wrappedDialog.find('[data-vadialog-elem-dialogmark="start"]').focus();
+			});
+			wrappedDialog.find('[data-vadialog-elem-sentinel="end"]').focus(function() {
+				wrappedDialog.find('[data-vadialog-elem-dialogmark="end"]').focus();
+			});
+			wrappedDialog.find('[data-vadialog-elem-dialogmark="start"]').focus(function() {
+			});
+			wrappedDialog.find('[data-vadialog-elem-dialogmark="end"]').blur(function() {
+				wrappedDialog.find('[data-vadialog-elem-closebutton]').focus();
+			});
+			wrappedDialog.find('[data-vadialog-elem-closeproxy]').focus(function() {
+				wrappedDialog.find('[data-vadialog-elem-closebutton]').focus();
+			});
+			wrappedDialog.find('[data-vadialog-elem-closebutton]').blur(function() {
+				wrappedDialog.find('[data-vadialog-elem-sentinel="start"]').focus();
+			});
+			// Add event handler to close button
+			wrappedDialog.find('[data-vadialog-elem-closebutton]').click(closeButton);
+		}
 	};
 
 	// Content modifiers
@@ -142,14 +237,11 @@
 			var content = $("#" + dialogId),
 			parent      = content.parent(),
 			clones      = {
-				toCopy: content.clone(true),
-				toShow: content.clone(true)
+				toCopy: content.clone(true, true),
+				toShow: content.clone(true, true)
 			}
 			content.remove();
 			return clones;
-		},
-		reinstate: function(){
-
 		}
 	}
 
@@ -192,7 +284,7 @@
 		}
 	};
 
-	// Add a dialog
+	// Instantiate a dialog
 	VADialog.addDialog = function (linkId, dialogId, events){
 		if (!linkId || !document.getElementById(linkId)) {
 			throw "Link ID is not valid";
@@ -201,6 +293,7 @@
 			throw "Dialog ID is not valid";
 		}
 
+		// Setup event hooks
 		var fBeforeOpen = null;
 		if (!!events && !!events.beforeOpen) fBeforeOpen = events.beforeOpen;
 
@@ -209,143 +302,91 @@
 
 		var fForCloseButton = null;
 		if (!!events && !!events.forCloseButton) fForCloseButton = events.forCloseButton;
-
-		//adds onclick handler to the link. Used when the content is already
-		//event handlers are added inside this function, so scope is keept separate for each dialog box, YES.
-	
-		
 				
 		// High z-index for shadow & dialog box.
 		var bigZ = 16123456;
 		// Specify children of <body> that we will add or change aria-hidden on.
 		var bodyChildren = [];
-			
-		var heading;
 		
-		var startDialog;
-		
-		//outside of open function as they are used by close
-		var dialog, shadow, parent;
-		var isOpen = false;
-		var cc;
-		var body = $("body");
+		// Outside of open function as they are used by close
+		var isOpen = false, body = $("body"), cc,
+		contentParent = VADialog.Content.parentContainer(dialogId),
+		triggerLink = $("#" + linkId);
 
+		// Open current dialog
 		function openDialog(link, ev){
-		
 			if(isOpen) {
-				startDialog.focus();
+				$('[data-vadialog-elem-dialogmark="start"]').focus();
 				ev.preventDefault();
 				return;
 			}
-			
 			isOpen = true;
-			
-			//Note: .after() returns the link JQuery object - NOT the elements inserted
-			
-			//create JQuery objects
-			shadow = $(VADialog.Templates.shadowTpl);
-			dialog = $(VADialog.Templates.dialogTpl);
 
-			dialog.attr('data-current-vadialog', dialogId);
-			
-			var closeButton   = $(VADialog.Templates.closeButtonTpl);
-			var startCentinel = $(VADialog.Templates.sentinelTpl);
-			var closeProxy    = $(VADialog.Templates.closeProxyTpl);
-			startDialog       = $(VADialog.Templates.dialogStartTpl);
-			var endDialog     = $(VADialog.Templates.dialogEndTpl);
-			var endCentinel   = $(VADialog.Templates.sentinelTpl);
-			
-			startCentinel.focus(function() {
-				startDialog.focus();
-			});
-			
-			endCentinel.focus(function() {
-				endDialog.focus();
-			});
-
-			endDialog.blur(function() {
-				closeButton.focus();
-			});
-
-			closeProxy.focus(function(){
-				closeButton.focus();
-			});
-
-			closeButton.blur(function(){
-				startCentinel.focus();
-			});
-
-			dialog.append(startCentinel);
-			dialog.append(startDialog);
-			shadow.append(closeButton);
-
+			// Get template HTML
 			cc = VADialog.Content.extract(dialogId);
-			dialog.append(cc.toShow);
-			cc.toShow.show().attr("aria-hidden", "false");
-			
-			dialog.append(endDialog);
-			dialog.append(endCentinel);
-			dialog.append(closeProxy);
+			cc.toShow.show().removeAttr("aria-hidden");
 
-			if (fBeforeOpen && typeof fBeforeOpen == "function") {
-				fBeforeOpen.call(dialog, link);
-			}
-			
-			//add event handler to close button
-			closeButton.click(function(){
+			// Generate template HTML
+			var wrappedDialog = VADialog.Dialog.renderHTML({
+				dialogId: dialogId,
+				content:  cc.toShow
+			}, triggerLink.get(0));
+			VADialog.Dialog.addEventHandlers(wrappedDialog, function(){
 				if (fForCloseButton && typeof fForCloseButton == "function") {
-					fForCloseButton.call(dialog, link);
+					fForCloseButton.call($('[data-vadialog-elem-dialog]'), link);
 				}
 				closeDialog();
 			});
 
-			VADialog.Window.resize(dialog, true);
-			
-			//Changed to use aria-live much of the above - how we build the dialog - stays the same
-			//insert in DOM - it made ALL the difference for JAWS 10 to have these two lines down here!!!!!!!
-			dialog.css("z-index",bigZ);
-			closeButton.css("z-index", bigZ + 1);
-			shadow.css("z-index",bigZ);
+			// Run pre-open handler
+			if (fBeforeOpen && typeof fBeforeOpen == "function") {
+				fBeforeOpen.call(wrappedDialog.find('[data-vadialog-elem-dialog]'), link);
+			}
+
+			// Set up z-index rules on shadow, dialog and close button appropriately.
+			// Comments for original developer: it made ALL the difference for JAWS 10
+			// to have these two lines down here.
+			wrappedDialog.find('[data-vadialog-elem-shadow], [data-vadialog-elem-dialog]').css({
+				zIndex: bigZ
+			});
+			wrappedDialog.find('[data-vadialog-elem-closebutton]').css({
+				zIndex: bigZ + 1
+			});
 			
 			// Hide all top level elements & remember their aria-hidden status
 			bodyChildren = VADialog.Body.hideChildren(body);
-
-			shadow.append(dialog);
-			body.append(shadow);
+			body.append(wrappedDialog);
 
 			// Added by GR
 			// Stop body from scrolling behind modal
 			body.addClass('hasvamodal');
 			
-			shadow.show();
+			$('[data-vadialog-elem-shadow]').show();
 
-			VADialog.resizeDialog(dialog);
+			VADialog.Dialog.resize($('[data-vadialog-elem-dialog]'));
 
-			dialog.show();
-			
-			startDialog.focus();
+			$('[data-vadialog-elem-dialog]').show();
+			$('[data-vadialog-elem-dialogmark="start"]').focus();
 
 			if (fAfterOpen && typeof fAfterOpen == "function") {
-				fAfterOpen.call(dialog, link);
+				fAfterOpen.call($('[data-vadialog-elem-dialog]'), link);
 			}
 
 			ev.preventDefault();
-			
-		}//end open ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+		}
 		
-		
+		// Close current dialog
 		function closeDialog(){
 			if (!isOpen) return;
 			isOpen = false;
 
-			VADialog.Window.resize(dialog, false);
+			VADialog.Window.resize($('[data-vadialog-elem-dialog]'), false);
 			VADialog.Body.showChildren(bodyChildren);
 
-			dialog.remove();
-			shadow.remove();
+			$('[data-vadialog-elem-dialog]').remove();
+			$('[data-vadialog-elem-shadow]').remove();
 
-			var recoverParent = VADialog.Content.parentContainer(dialogId);
-			recoverParent.append(cc.toCopy);
+			VADialog.dialogs[dialogId].parentElem.append(cc.toCopy);
 
 			// Added by GR
 			// Restore scrolling to body
@@ -355,18 +396,21 @@
 		}
 
 		// Add event handler to link
-		var triggerLink = $("#" + linkId);
 		triggerLink.click(function(event) {
 			openDialog(this, event);
 		});
 		
-		VADialog[dialogId] = {};
-		VADialog[dialogId].closeDialog = closeDialog;
+		VADialog.DialogHandler.add(dialogId, contentParent, closeDialog);
 	};
 
 	// Close a dialog
 	VADialog.closeDialog = function (dialogId){
-		VADialog[dialogId].closeDialog();
+		if (!!VADialog.dialogs[dialogId]) {
+			VADialog.dialogs[dialogId].closeDialog();
+		}
+		else {
+			throw "Dialog not found."
+		}
 	};
 
 	// Hit escape key to close all modals
@@ -422,16 +466,25 @@
 		},
 		beforeOpen: function(trigger){
 			var container = this;
-			var loadContainer = VADialog.Templates.loadContainer(
-				VADialog.Templates.loadingTpl
-			);
+
+			// Build loader HTML
+			var loadContainer = Handlebars.compile(
+				VADialog.Templates.get('remoteload', trigger)
+			)({
+				loaderContent: Handlebars.compile(
+					VADialog.Templates.get('loading', trigger)
+				)()
+			});
+
 			var selector = trigger.getAttribute('data-vadialog-url');
 			container.find('[data-vadialog-url-trigger]').append(loadContainer);
-			container.find('.remote-content')
+			container.find('[data-vadialog-elem-remoteinner]')
 			.load($(trigger).attr('href') + " body", function(response, status, xhr){
-				var html = "", classes = [];
+				var html = "", classes = [], inContainer = $(this);
 				if (status == "error") {
-					var html = VADialog.Templates.errorTpl;
+					var html = Handlebars.compile(
+						VADialog.Templates.get('error', trigger)
+					)();
 					classes.push('remote-content-failedload');
 				}
 				else {
@@ -447,12 +500,12 @@
 						}
 					}
 				}
-				$(this).append($(html))
+				inContainer.empty().append($(html))
 				.removeClass('remote-content-loading')
 				.addClass(classes);
-				VADialog.resizeDialog(container);
+				VADialog.Dialog.resize(container);
 			});
-			VADialog.resizeDialog(container);
+			VADialog.Dialog.resize(container);
 		},
 		forCloseButton: function(trigger){
 			this.find('.remote-content').remove();
@@ -493,7 +546,7 @@
 				height: "100%"
 			});
 			this.find('[data-vadialog-iframe-trigger]').append(f);
-			VADialog.resizeDialog(
+			VADialog.Dialog.resize(
 				this,
 				$(window).innerWidth(),
 				$(window).innerHeight()
@@ -507,7 +560,7 @@
 			).height(
 				window.innerHeight - (2 * padTop)
 			);
-			VADialog.resizeDialog(this);
+			VADialog.Dialog.resize(this);
 			$('.vashadow').addClass('vashadow-iframe');
 		},
 		forCloseButton: function(trigger){
@@ -517,7 +570,7 @@
 
 	// Trigger actions for particular link types
 	var triggerActions = {
-		open:   function(){
+		open: function(){
 			if (!this.id) {
 				this.id = VADialog.getNewID("vadialog-trigger");
 			}
@@ -529,15 +582,15 @@
 				dialogID
 			);
 		},
-		close:  function(){
-			this.click(function(e){
+		close: function(){
+			$(this).click(function(e){
 				e.preventDefault();
 				VADialog.closeDialog(
 					this.getAttribute('data-vadialog-close')
 				);
 			});
 		},
-		url:    function(){
+		url: function(){
 			var idents = UrlTrigger.setup(this);
 			VADialog.addDialog(
 				idents.triggerID,
@@ -583,5 +636,4 @@
 	$(document).ready(function(){
 		$('body').vadialog();
 	});
- 
 }( jQuery ));
